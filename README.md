@@ -9,13 +9,5 @@ _The Swiss Army Knife of Embedded Linux_ - [BusyBox](http://www.busybox.net/) is
 
     $ docker run -it --rm clover/busybox
 
-### Use as a base image in a `Dockerfile`:
-
-    FROM clover/busybox
-    ADD https://github.com/krallin/tini/releases/download/v0.15.0/tini-static-amd64 /usr/bin/tini
-    RUN chmod 0555 /usr/bin/tini
-    ENTRYPOINT ["tini", "--"]
-    CMD ["sh"]
-
 ### License
 View [license information](http://www.busybox.net/license.html) for the software contained in this image.

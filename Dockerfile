@@ -1,41 +1,77 @@
-#
-# This is a multi-stage build.
-# Actual build is at the very end.
-#
-
 FROM library/ubuntu:xenial AS build
 
-ENV DEBIAN_FRONTEND noninteractive
-ENV LANG C.UTF-8
-RUN apt-get update && \
-    apt-get install -y \
+ENV LANG=C.UTF-8
+
+RUN export DEBIAN_FRONTEND=noninteractive \
+ && apt-get update \
+ && apt-get install -y \
         python-software-properties \
         software-properties-common \
         apt-utils
 
-RUN mkdir -p /build/image
+RUN mkdir /build /rootfs
 WORKDIR /build
 RUN apt-get download \
-        busybox \
         libgcc1 \
-        libc6
-RUN for file in *.deb; do dpkg-deb -x ${file} image/; done
+        libc6 \
+        libc-bin \
+        netbase \
+        busybox
+RUN find *.deb | xargs -I % dpkg-deb -x % /rootfs
 
-WORKDIR /build/image
-RUN mkdir -p home etc dev root tmp run var/mail var/log && \
-    chmod 1777 tmp && \
-    ln -s /run var/run
-COPY group localtime login.defs nsswitch.conf passwd shadow etc/
-RUN chmod 0640 etc/shadow && \
-    chmod 0666 etc/group etc/localtime etc/login.defs etc/nsswitch.conf etc/passwd && \
-    ./bin/busybox --list-full | xargs dirname | sort | uniq | xargs mkdir -p && \
-    ./bin/busybox --list-full | xargs -n1 ln -s /bin/busybox && \
-    rm -rf usr/share
+WORKDIR /rootfs
+COPY environment group gshadow localtime login.defs networks passwd shadow shells etc/
+RUN mkdir -p dev home root tmp run var/log \
+ && cp usr/share/libc-bin/nsswitch.conf etc/ \
+ && chmod 1777 tmp \
+ && ln -s /run var/run \
+ && ./bin/busybox --list-full | xargs dirname | sort | uniq | xargs mkdir -p \
+ && ./bin/busybox --list-full | xargs -I % ln -s /bin/busybox % \
+ && chmod 0640 etc/shadow \
+ && chmod 0666 \
+        etc/group \
+        etc/login.defs \
+        etc/nsswitch.conf \
+        etc/passwd \
+        etc/networks \
+ && find \
+        etc/*.conf \
+        etc/ld.so.conf.d/*.conf \
+        etc/bindresvport.blacklist \
+        etc/default/nss \
+        etc/protocols \
+        etc/rpc \
+        etc/services \
+    | xargs -I % \
+        sed -i -r \
+            -e 's,[[:space:]]*[#]+.*$,,g' \
+            -e '/^$/d' \
+            -e 's,[[:space:]]+, ,g' \
+            % \
+ && rm -rf \
+        sbin/ldconfig* \
+        usr/bin/catchsegv \
+        usr/bin/getconf \
+        usr/bin/getent \
+        usr/bin/iconv \
+        usr/bin/ldd \
+        usr/bin/locale \
+        usr/bin/localedef \
+        usr/bin/pldd \
+        usr/bin/tzselect \
+        usr/bin/zdump \
+        usr/lib/locale \
+        usr/sbin/iconvconfig \
+        usr/sbin/zic \
+        usr/share
+
+WORKDIR /
 
 
 FROM scratch
 
-WORKDIR /
-COPY --from=build /build/image /
+ENV LANG=C.UTF-8
+
+COPY --from=build /rootfs /
 
 CMD ["sh"]
