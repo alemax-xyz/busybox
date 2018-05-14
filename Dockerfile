@@ -1,11 +1,10 @@
-FROM library/ubuntu:xenial AS build
+FROM library/ubuntu:bionic AS build
 
 ENV LANG=C.UTF-8
 
 RUN export DEBIAN_FRONTEND=noninteractive \
  && apt-get update \
  && apt-get install -y \
-        python-software-properties \
         software-properties-common \
         apt-utils
 
