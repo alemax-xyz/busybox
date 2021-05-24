@@ -1,4 +1,4 @@
-FROM library/ubuntu:bionic AS build
+FROM library/ubuntu:focal AS build
 
 ENV LANG=C.UTF-8
 
@@ -11,7 +11,8 @@ RUN export DEBIAN_FRONTEND=noninteractive \
 RUN mkdir /build /rootfs
 WORKDIR /build
 RUN apt-get download \
-        libgcc1 \
+        libgcc-s1 \
+        libcrypt1 \
         libc6 \
         libc-bin \
         netbase \
@@ -37,6 +38,7 @@ RUN mkdir -p dev home root tmp run var/log \
         etc/*.conf \
         etc/ld.so.conf.d/*.conf \
         etc/bindresvport.blacklist \
+        etc/ethertypes \
         etc/default/nss \
         etc/protocols \
         etc/rpc \
@@ -48,6 +50,8 @@ RUN mkdir -p dev home root tmp run var/log \
             -e 's,[[:space:]]+, ,g' \
             % \
  && rm -rf \
+        linuxrc \
+        etc/default \
         sbin/ldconfig* \
         usr/bin/catchsegv \
         usr/bin/getconf \
