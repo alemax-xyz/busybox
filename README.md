@@ -8,7 +8,7 @@ _The Swiss Army Knife of Embedded Linux_ - [BusyBox](http://www.busybox.net/) is
 
 ### Run a shell
 
-    $ docker run -it --rm clover/busybox
+    $ docker run -it --rm -eTERM clover/busybox
 
 ### License
 

@@ -5,7 +5,6 @@ ENV LANG=C.UTF-8
 RUN export DEBIAN_FRONTEND=noninteractive \
  && apt-get update \
  && apt-get install -y \
-        software-properties-common \
         apt-utils
 
 RUN mkdir /build /rootfs
@@ -26,8 +25,10 @@ RUN mkdir -p dev home root tmp run var/log \
  && cp usr/share/libc-bin/nsswitch.conf etc/ \
  && chmod 1777 tmp \
  && ln -s /run var/run \
- && ./bin/busybox --list-full | xargs dirname | sort | uniq | xargs mkdir -p \
- && ./bin/busybox --list-full | xargs -I % ln -s /bin/busybox % \
+ && ln -s /usr/lib lib \
+ && ln -s /usr/lib64 lib64 \
+ && ./usr/bin/busybox --list-full | xargs dirname | sort | uniq | xargs mkdir -p \
+ && ./usr/bin/busybox --list-full | xargs -I % ln -s /usr/bin/busybox % \
  && chmod 0640 etc/shadow \
  && chmod 0666 \
         etc/group \
@@ -53,20 +54,8 @@ RUN mkdir -p dev home root tmp run var/log \
  && rm -rf \
         linuxrc \
         etc/default \
-        sbin/ldconfig* \
-        usr/bin/catchsegv \
-        usr/bin/getconf \
-        usr/bin/getent \
-        usr/bin/iconv \
         usr/bin/ldd \
-        usr/bin/locale \
-        usr/bin/localedef \
-        usr/bin/pldd \
         usr/bin/tzselect \
-        usr/bin/zdump \
-        usr/lib/locale \
-        usr/sbin/iconvconfig \
-        usr/sbin/zic \
         usr/share
 
 WORKDIR /
