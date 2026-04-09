@@ -19,8 +19,8 @@ RUN apt-get download \
 RUN find *.deb | xargs -I % dpkg-deb -x % /rootfs
 
 WORKDIR /rootfs
-COPY environment group gshadow localtime login.defs networks passwd shadow shells etc/
-COPY ls ll usr/local/bin/
+COPY etc/ etc/
+COPY usr/local/bin/ usr/local/bin/
 RUN mkdir -p dev home root tmp run var/log \
  && cp usr/share/libc-bin/nsswitch.conf etc/ \
  && chmod 1777 tmp \
