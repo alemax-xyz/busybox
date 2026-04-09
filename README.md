@@ -5,3 +5,13 @@
 _The Swiss Army Knife of Embedded Linux_ - [BusyBox](http://www.busybox.net/) is a very good ingredient to craft space-efficient distributions.
 
 This image based on official [BusyBox](http://www.busybox.net/) (`v1.37.0`) package for Debian.
+
+### Supported platforms
+
+ * `linux/amd64`;
+ * `linux/386`;
+ * `linux/arm/v7`;
+ * `linux/arm64/v8`;
+ * `linux/ppc64le`;
+ * `linux/s390x`;
+ * `linux/riscv64`;
