@@ -3,11 +3,9 @@ FROM library/debian:stable-slim AS build
 ENV LANG=C.UTF-8
 
 RUN export DEBIAN_FRONTEND=noninteractive \
- && apt-get update \
- && apt-get install -y \
-        apt-utils
+ && apt-get update
 
-RUN mkdir /build /rootfs
+RUN mkdir -p /build /rootfs
 WORKDIR /build
 RUN apt-get download \
         libgcc-s1 \
@@ -16,7 +14,7 @@ RUN apt-get download \
         libc-bin \
         netbase \
         busybox
-RUN find *.deb | xargs -I % dpkg-deb -x % /rootfs
+RUN find . -name '*.deb' -exec dpkg-deb -x {} /rootfs \;
 
 WORKDIR /rootfs
 COPY etc/ etc/
@@ -27,6 +25,7 @@ RUN mkdir -p dev home root tmp run var/log \
  && ln -s /run var/run \
  && ln -s /usr/lib lib \
  && ln -s /usr/lib64 lib64 \
+ && ln -s /$(find usr/lib -type f -name 'ld*.so*' -executable | head -1) usr/lib/ld-linux.so \
  && ./usr/bin/busybox --list-full | xargs dirname | sort | uniq | xargs mkdir -p \
  && ./usr/bin/busybox --list-full | xargs -I % ln -s /usr/bin/busybox % \
  && chmod 0640 etc/shadow \
