@@ -26,6 +26,7 @@ RUN mkdir -p dev home root tmp run var/log \
  && ln -s /usr/lib lib \
  && ln -s /usr/lib64 lib64 \
  && ln -s /$(find usr/lib -type f -name 'ld*.so*' -executable | head -1) usr/lib/ld-linux.so \
+ && chmod u+s,g+s usr/bin/busybox \
  && ./usr/bin/busybox --list-full | xargs dirname | sort | uniq | xargs mkdir -p \
  && ./usr/bin/busybox --list-full | xargs -I % ln -s /usr/bin/busybox % \
  && chmod 0640 etc/shadow \

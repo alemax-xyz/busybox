@@ -1,0 +1,4 @@
+#!/bin/sh
+
+[ $# -gt 0 ] && set -- -p -c 'exec "$@"' -- sh "$@"
+exec su -s /bin/sh root "$@"
