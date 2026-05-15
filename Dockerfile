@@ -2,21 +2,23 @@
 
 FROM library/debian:stable-slim AS build
 
-ENV LANG=C.UTF-8
+ENV LANG=C.UTF-8 \
+    SANDBOX_ROOT=/
 
 ADD https://github.com/alemax-xyz/apt-sandbox.git#main /usr/local/bin/
 
 RUN mkdir -p \
         /build \
         /rootfs
+WORKDIR /build
 
-COPY build/ build/
+COPY build/ .
 
 RUN apt-sandbox --install --verstamp \
         --apt-config APT::Install-Recommends=false \
-        --repository /build \
-        --keyring /build \
-        --required /build/packages.required
+        --repository . \
+        --keyring . \
+        --required packages.required
 
 WORKDIR /rootfs
 
