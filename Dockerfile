@@ -2,24 +2,25 @@ FROM library/debian:stable-slim AS build
 
 ENV LANG=C.UTF-8
 
-RUN export DEBIAN_FRONTEND=noninteractive \
- && apt-get update
+ADD https://github.com/alemax-xyz/apt-sandbox.git#main /usr/local/bin/
 
-RUN mkdir -p /build /rootfs
-WORKDIR /build
-RUN apt-get download \
-        libgcc-s1 \
-        libcrypt1 \
-        libc6 \
-        libc-bin \
-        netbase \
-        busybox
-RUN find . -name '*.deb' -exec dpkg-deb -x {} /rootfs \;
+RUN mkdir -p \
+        /build \
+        /rootfs
+
+COPY build/ build/
+
+RUN apt-sandbox --install --verstamp \
+        --apt-config APT::Install-Recommends=false \
+        --repository /build \
+        --keyring /build \
+        --required /build/packages.required
 
 WORKDIR /rootfs
-COPY etc/ etc/
-COPY usr/local/bin/ usr/local/bin/
-RUN mkdir -p dev home root tmp run var/log \
+
+COPY rootfs/ .
+
+RUN mkdir -p bin dev home root sbin tmp run var/log \
  && cp usr/share/libc-bin/nsswitch.conf etc/ \
  && chmod 1777 tmp \
  && ln -s /run var/run \
@@ -27,12 +28,10 @@ RUN mkdir -p dev home root tmp run var/log \
  && ln -s /usr/lib64 lib64 \
  && ln -s /$(find usr/lib -type f -name 'ld*.so*' -executable | head -1) usr/lib/ld-linux.so \
  && chmod u+s,g+s usr/bin/busybox \
- && ./usr/bin/busybox --list-full | xargs dirname | sort | uniq | xargs mkdir -p \
  && ./usr/bin/busybox --list-full | xargs -I % ln -s /usr/bin/busybox % \
  && chmod 0640 etc/shadow \
- && chmod 0666 \
+ && chmod 0644 \
         etc/group \
-        etc/login.defs \
         etc/nsswitch.conf \
         etc/passwd \
         etc/networks \
@@ -45,6 +44,8 @@ RUN mkdir -p dev home root tmp run var/log \
         etc/protocols \
         etc/rpc \
         etc/services \
+        usr/lib/*/gconv/gconv-modules \
+        usr/lib/*/gconv/gconv-modules.d/*.conf \
     | xargs -I % \
         sed -i -r \
             -e 's,[[:space:]]*[#]+.*$,,g' \
@@ -60,11 +61,10 @@ RUN mkdir -p dev home root tmp run var/log \
 
 WORKDIR /
 
-
 FROM scratch
 
 ENV LANG=C.UTF-8
 
 COPY --from=build /rootfs /
 
-CMD ["sh"]
+CMD ["sh", "-l"]
