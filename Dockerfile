@@ -1,3 +1,5 @@
+# syntax=docker/dockerfile:1.17
+
 FROM library/debian:stable-slim AS build
 
 ENV LANG=C.UTF-8
