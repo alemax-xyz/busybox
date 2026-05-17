@@ -5,7 +5,7 @@ FROM library/debian:stable-slim AS build
 ENV LANG=C.UTF-8 \
     SANDBOX_ROOT=/
 
-ADD https://github.com/alemax-xyz/docker-tools.git#main /usr/local/bin/
+ADD https://github.com/alemax-xyz/misc-tools.git#main /usr/local/bin/
 
 RUN mkdir -p \
         /build \
@@ -15,7 +15,7 @@ WORKDIR /build
 COPY build/ .
 
 RUN apt-sandbox --install --verstamp \
-        --apt-config APT::Install-Recommends=false \
+        --apt-config APT::Install-Recommends=false APT::Get::Upgrade==false \
         --repository . \
         --keyring . \
         --required packages.required
