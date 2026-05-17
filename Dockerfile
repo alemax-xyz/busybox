@@ -5,7 +5,7 @@ FROM library/debian:stable-slim AS build
 ENV LANG=C.UTF-8 \
     SANDBOX_ROOT=/
 
-ADD https://github.com/alemax-xyz/apt-sandbox.git#main /usr/local/bin/
+ADD https://github.com/alemax-xyz/docker-tools.git#main /usr/local/bin/
 
 RUN mkdir -p \
         /build \
