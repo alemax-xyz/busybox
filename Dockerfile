@@ -15,7 +15,9 @@ WORKDIR /build
 COPY build/ .
 
 RUN apt-sandbox --install --verstamp \
-        --apt-config APT::Install-Recommends=false APT::Get::Upgrade==false \
+        --apt-config \
+            APT::Install-Recommends=false
+            APT::Get::Upgrade==false \
         --repository . \
         --keyring . \
         --required packages.required
@@ -39,7 +41,10 @@ RUN mkdir -p bin dev home root sbin tmp run var/log \
         etc/nsswitch.conf \
         etc/passwd \
         etc/networks \
- && find \
+ && sed -i -E \
+        -e 's,[[:space:]]*[#]+.*$,,g' \
+        -e '/^$/d' \
+        -e 's,[[:space:]]+, ,g' \
         etc/*.conf \
         etc/ld.so.conf.d/*.conf \
         etc/bindresvport.blacklist \
@@ -50,12 +55,6 @@ RUN mkdir -p bin dev home root sbin tmp run var/log \
         etc/services \
         usr/lib/*/gconv/gconv-modules \
         usr/lib/*/gconv/gconv-modules.d/*.conf \
-    | xargs -I % \
-        sed -i -r \
-            -e 's,[[:space:]]*[#]+.*$,,g' \
-            -e '/^$/d' \
-            -e 's,[[:space:]]+, ,g' \
-            % \
  && rm -rf \
         linuxrc \
         etc/default \
