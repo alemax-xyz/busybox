@@ -16,7 +16,7 @@ COPY build/ .
 
 RUN apt-sandbox --install --verstamp \
         --apt-config \
-            APT::Install-Recommends=false
+            APT::Install-Recommends=false \
             APT::Get::Upgrade==false \
         --repository . \
         --keyring . \
